@@ -18,8 +18,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.GitHub
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -37,8 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -370,27 +369,12 @@ private fun SkillChip(
     skill: Skill,
     modifier: Modifier = Modifier
 ) {
-    var isHovered by remember { mutableStateOf(false) }
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isHovered) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.primaryContainer
-        }
-    )
-
     Surface(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
-            .shadow(elevation = if (isHovered) 4.dp else 2.dp, shape = RoundedCornerShape(20.dp))
-            .onPointerEvent(PointerEventType.Enter) {
-                isHovered = true
-            }
-            .onPointerEvent(PointerEventType.Exit) {
-                isHovered = false
-            },
+            .shadow(elevation = 2.dp, shape = RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
-        color = backgroundColor
+        color = MaterialTheme.colorScheme.primaryContainer
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -443,7 +427,7 @@ private fun ContactSection(
                 modifier = Modifier.weight(1f)
             )
             ContactButton(
-                icon = Icons.Default.GitHub,
+                icon = Icons.Default.Code,
                 label = "GitHub",
                 url = contact.github,
                 modifier = Modifier.weight(1f)
@@ -469,35 +453,39 @@ private fun ContactSection(
                 )
             }
         }
+
+        if (contact.buyMeACoffee.isNotEmpty()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                ContactButton(
+                    icon = Icons.Default.Language,
+                    label = "Buy Me Coffee",
+                    url = contact.buyMeACoffee,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
     }
 }
 
 @Composable
 private fun ContactButton(
-    icon: androidx.compose.material.icons.outlined.Add = Icons.Default.Email,
+    icon: ImageVector = Icons.Default.Email,
     label: String,
     url: String,
     modifier: Modifier = Modifier
 ) {
-    var isHovered by remember { mutableStateOf(false) }
-
     Surface(
         modifier = modifier
             .height(56.dp)
             .shadow(
-                elevation = if (isHovered) 6.dp else 2.dp,
+                elevation = 2.dp,
                 shape = RoundedCornerShape(12.dp)
-            )
-            .onPointerEvent(PointerEventType.Enter) {
-                isHovered = true
-            }
-            .onPointerEvent(PointerEventType.Exit) {
-                isHovered = false
-            },
+            ),
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.primaryContainer.copy(
-            alpha = if (isHovered) 1f else 0.7f
-        ),
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     ) {
         Row(

@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -24,6 +25,7 @@ enum class NavigationItem(
 ) {
     HOME("Home", Icons.Default.Home, "Home"),
     PROJECTS("Projects", Icons.Default.Work, "Projects"),
+    GAME("Game", Icons.Default.SportsSoccer, "Game"),
     ABOUT("About", Icons.Default.Info, "About")
 }
 

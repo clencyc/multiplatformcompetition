@@ -6,6 +6,7 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -48,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinconference101.composeapp.generated.resources.Res
 import kotlinconference101.composeapp.generated.resources.myprofile
-import org.jetbrains.compose.resources.Image
 import org.jetbrains.compose.resources.painterResource
 import kotlinx.coroutines.delay
 
@@ -151,7 +152,7 @@ fun HomeScreen(
             enter = fadeIn() + slideInVertically(initialOffsetY = { 30 })
         ) {
             Text(
-                text = "Full-Stack Developer & Designer",
+                text = "Mobile & Backend Developer",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.secondary,
                 textAlign = TextAlign.Center
@@ -164,7 +165,7 @@ fun HomeScreen(
             enter = fadeIn()
         ) {
             Text(
-                text = "Crafting beautiful, functional applications across Android, Desktop, and Web",
+                text = "Designing and building scalable, robust backend systems | Expert in mobile development with a focus on backend architecture | Actively learning modern design systems",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center,
@@ -237,20 +238,20 @@ fun HomeScreen(
             ) {
                 HighlightCard(
                     icon = Icons.Default.Code,
-                    title = "Multi-Platform Expertise",
-                    description = "Expert in building cross-platform applications with Kotlin Multiplatform and Jetpack Compose"
+                    title = "Backend & Mobile Mastery",
+                    description = "Building scalable backend systems and cross-platform mobile applications with expertise in Kotlin Multiplatform and modern server architecture"
                 )
 
                 HighlightCard(
                     icon = Icons.Default.Description,
-                    title = "Clean Architecture",
-                    description = "Advocate for MVVM, SOLID principles, and maintainable code practices"
+                    title = "Scalable System Design",
+                    description = "Designing robust backend architectures with clean code principles, SOLID design patterns, and production-ready best practices"
                 )
 
                 HighlightCard(
                     icon = Icons.Default.Info,
-                    title = "Modern UI Design",
-                    description = "Passionate about Material Design 3 and creating beautiful user experiences"
+                    title = "Design Systems & UX",
+                    description = "Mastering Material Design 3 and modern design systems for beautiful, functional mobile experiences backed by solid architecture"
                 )
             }
         }
@@ -261,7 +262,7 @@ fun HomeScreen(
 
 @Composable
 private fun HighlightCard(
-    icon: androidx.compose.material.icons.outlined.Add = Icons.Default.Code,
+    icon: ImageVector = Icons.Default.Code,
     title: String,
     description: String,
     modifier: Modifier = Modifier

@@ -22,7 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.GitHub
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,8 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -104,31 +103,16 @@ private fun ProjectCard(
     project: Project,
     modifier: Modifier = Modifier
 ) {
-    var isHovered by remember { mutableStateOf(false) }
-    val cardColor by animateColorAsState(
-        targetValue = if (isHovered) {
-            MaterialTheme.colorScheme.surfaceVariant
-        } else {
-            MaterialTheme.colorScheme.surface
-        }
-    )
-
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(elevation = if (isHovered) 12.dp else 4.dp, shape = RoundedCornerShape(16.dp))
-            .onPointerEvent(PointerEventType.Enter) {
-                isHovered = true
-            }
-            .onPointerEvent(PointerEventType.Exit) {
-                isHovered = false
-            }
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { },
         shape = RoundedCornerShape(16.dp),
-        color = cardColor,
+        color = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface
     ) {
         Column(
@@ -236,7 +220,7 @@ private fun ProjectCard(
                 ) {
                     if (project.githubUrl.isNotEmpty()) {
                         ProjectLink(
-                            icon = Icons.Default.GitHub,
+                            icon = Icons.Default.Code,
                             label = "GitHub",
                             url = project.githubUrl,
                             modifier = Modifier.weight(1f)
@@ -278,26 +262,18 @@ private fun TechBadge(
 
 @Composable
 private fun ProjectLink(
-    icon: androidx.compose.material.icons.outlined.Add = Icons.Default.GitHub,
+    icon: ImageVector = Icons.Default.Code,
     label: String,
     url: String,
     modifier: Modifier = Modifier
 ) {
-    var isHovered by remember { mutableStateOf(false) }
-
     Surface(
         modifier = modifier
             .height(44.dp)
             .shadow(
-                elevation = if (isHovered) 6.dp else 2.dp,
+                elevation = 2.dp,
                 shape = RoundedCornerShape(8.dp)
             )
-            .onPointerEvent(PointerEventType.Enter) {
-                isHovered = true
-            }
-            .onPointerEvent(PointerEventType.Exit) {
-                isHovered = false
-            }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
@@ -305,9 +281,7 @@ private fun ProjectLink(
                 // In a real app, would open the URL
             },
         shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.primaryContainer.copy(
-            alpha = if (isHovered) 1f else 0.7f
-        ),
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     ) {
         Row(
