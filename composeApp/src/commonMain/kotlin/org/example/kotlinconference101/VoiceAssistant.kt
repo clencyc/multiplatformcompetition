@@ -1,13 +1,6 @@
 package org.example.kotlinconference101
 
-
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,11 +12,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.MicOff
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +27,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -64,8 +58,27 @@ fun VoiceAssistantChat(
 ) {
     val messages = remember { mutableStateListOf<ChatMessage>() }
     var inputText by remember { mutableStateOf("") }
+    var isSending by remember { mutableStateOf(false) }
+    var statusMessage by remember { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
+    val ttsService = rememberTextToSpeechService()
+    val speechService = rememberSpeechToTextService(
+        onResult = { spoken -> inputText = spoken },
+        onError = { error ->
+            messages.add(
+                ChatMessage(
+                    text = error,
+                    isUser = false
+                )
+            )
+        }
+    )
+    val isListening by speechService
+        ?.isListening
+        ?.collectAsState()
+        ?: remember { mutableStateOf(false) }
 
     // Welcome message
     LaunchedEffect(Unit) {
@@ -147,6 +160,20 @@ fun VoiceAssistantChat(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                if (statusMessage != null || isSending || isListening) {
+                    val label = when {
+                        isListening -> "Listening..."
+                        isSending -> "Contacting assistant..."
+                        else -> statusMessage
+                    }
+                    Text(
+                        text = label ?: "",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+
                 // Input Field
                 Row(
                     modifier = Modifier
@@ -161,7 +188,7 @@ fun VoiceAssistantChat(
                             .weight(1f)
                             .height(48.dp),
                         placeholder = {
-                            Text("Type your message...")
+                            Text("Type or speak your message...")
                         },
                         singleLine = true,
                         shape = RoundedCornerShape(24.dp),
@@ -174,40 +201,73 @@ fun VoiceAssistantChat(
                         )
                     )
 
+                    // Mic toggle
+                    IconButton(
+                        onClick = {
+                            if (speechService == null) {
+                                statusMessage = "Voice input is only available on Android."
+                                return@IconButton
+                            }
+
+                            if (isListening) {
+                                speechService.stopListening()
+                            } else {
+                                speechService.startListening()
+                            }
+                        },
+                        enabled = speechService != null,
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (isListening) Icons.Filled.MicOff else Icons.Filled.Mic,
+                            contentDescription = if (isListening) "Stop listening" else "Start listening",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
                     // Send Button
                     IconButton(
                         onClick = {
-                            if (inputText.isNotBlank()) {
-                                // Add user message
+                            if (inputText.isNotBlank() && !isSending) {
+                                val userMessage = inputText
+                                inputText = ""
                                 messages.add(
                                     ChatMessage(
-                                        text = inputText,
+                                        text = userMessage,
                                         isUser = true
                                     )
                                 )
 
-                                // TODO: Connect to backend voice assistant
-                                // For now, add a placeholder response
                                 coroutineScope.launch {
-                                    // Simulate backend response delay
-                                    kotlinx.coroutines.delay(500)
-                                    messages.add(
-                                        ChatMessage(
-                                            text = "Processing your request...",
-                                            isUser = false
+                                    isSending = true
+                                    statusMessage = "Contacting assistant..."
+                                    try {
+                                        val reply = fetchAssistantReply(userMessage)
+                                        messages.add(
+                                            ChatMessage(
+                                                text = reply,
+                                                isUser = false
+                                            )
                                         )
-                                    )
+                                        statusMessage = null
+                                        ttsService?.speak(reply, "en")
+                                    } catch (e: Exception) {
+                                        val errorText = "Assistant error: ${e.message ?: "unknown"}" 
+                                        messages.add(ChatMessage(text = errorText, isUser = false))
+                                        statusMessage = errorText
+                                    } finally {
+                                        isSending = false
+                                    }
                                 }
-
-                                inputText = ""
                             }
                         },
+                        enabled = inputText.isNotBlank() && !isSending,
                         modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Send,
                             contentDescription = "Send",
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = if (inputText.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                         )
                     }
                 }
