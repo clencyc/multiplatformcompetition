@@ -236,9 +236,6 @@ private fun PortfolioApp() {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 VoicePromptBanner(text = prompt)
-                statusText?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
-                lastHeard?.let { Text("You said: $it", style = MaterialTheme.typography.bodySmall) }
-                replyText?.let { Text("Reply: $it", style = MaterialTheme.typography.bodySmall) }
                 VoiceRipple(isActive = isSpeaking)
             }
         }

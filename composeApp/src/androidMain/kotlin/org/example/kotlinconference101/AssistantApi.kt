@@ -31,7 +31,7 @@ actual suspend fun fetchAssistantReply(query: String): String {
     }
 
     val response = httpClient.post(
-        urlString = "https://portfolio-assistant-546011950324.us-central1.run.app/api/generate"
+        urlString = "https://portfolio-assistant-546011950324.us-central1.run.app/api/query"
     ) {
         contentType(ContentType.Application.Json)
         setBody(payload)
