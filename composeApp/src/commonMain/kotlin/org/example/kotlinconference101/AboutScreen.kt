@@ -1,7 +1,8 @@
 package org.example.kotlinconference101
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,32 +14,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
@@ -52,26 +39,25 @@ fun AboutScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Arcade.colors.Ink)
             .verticalScroll(scrollState)
     ) {
         // Header
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(Arcade.spacing.xl),
+            verticalArrangement = Arrangement.spacedBy(Arcade.spacing.sm)
         ) {
             Text(
-                text = "About",
-                style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
+                text = "PLAYER PROFILE",
+                style = Arcade.type.arcadeCaption,
+                color = Arcade.colors.Ember
             )
             Text(
                 text = "Learn more about me and my journey",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground
+                style = Arcade.type.body,
+                color = Arcade.colors.TextMuted
             )
         }
 
@@ -95,22 +81,32 @@ fun AboutScreen(
             onClick = { /* Handle resume download */ },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(24.dp),
+                .padding(Arcade.spacing.xl),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                containerColor = Arcade.colors.Ember,
+                contentColor = Arcade.colors.OnEmber
             ),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(Arcade.radii.chip)
         ) {
             Text(
-                text = "Download Resume",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                fontWeight = FontWeight.SemiBold
+                text = "DOWNLOAD RESUME",
+                style = Arcade.type.arcadeCaption,
+                color = Arcade.colors.OnEmber,
+                modifier = Modifier.padding(horizontal = Arcade.spacing.lg)
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(Arcade.spacing.xl))
     }
+}
+
+@Composable
+private fun SectionTitle(text: String, color: Color = Arcade.colors.Ember) {
+    Text(
+        text = text,
+        style = Arcade.type.arcadeCaption,
+        color = color
+    )
 }
 
 @Composable
@@ -121,30 +117,21 @@ private fun BioSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(horizontal = Arcade.spacing.lg)
+            .padding(bottom = Arcade.spacing.xl),
+        verticalArrangement = Arrangement.spacedBy(Arcade.spacing.md)
     ) {
-        Text(
-            text = "Bio",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
+        SectionTitle("BIO")
 
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp)),
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        NeonBadgeCard(
+            accent = Arcade.colors.Ember,
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 text = bio,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(16.dp),
-                textAlign = TextAlign.Justify
+                style = Arcade.type.body,
+                color = Arcade.colors.TextMuted,
+                modifier = Modifier.padding(Arcade.spacing.lg)
             )
         }
     }
@@ -155,31 +142,29 @@ private fun FunFactCard(
     fact: String,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    NeonBadgeCard(
+        accent = Arcade.colors.Amber,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 24.dp)
-            .shadow(elevation = 8.dp, shape = RoundedCornerShape(12.dp)),
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            .padding(horizontal = Arcade.spacing.lg)
+            .padding(bottom = Arcade.spacing.xl)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(Arcade.spacing.sm),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "✨ Fun Fact",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold
+                text = "✨ FUN FACT",
+                style = Arcade.type.arcadeCaption,
+                color = Arcade.colors.Amber
             )
             Text(
                 text = fact,
-                style = MaterialTheme.typography.bodyMedium,
+                style = Arcade.type.body,
+                color = Arcade.colors.Text,
                 textAlign = TextAlign.Center
             )
         }
@@ -194,19 +179,17 @@ private fun ExperienceSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(horizontal = Arcade.spacing.lg)
+            .padding(bottom = Arcade.spacing.xl),
+        verticalArrangement = Arrangement.spacedBy(Arcade.spacing.md)
     ) {
-        Text(
-            text = "Experience",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
+        SectionTitle("EXPERIENCE")
 
-        experiences.forEach { experience ->
-            ExperienceCard(experience = experience)
+        experiences.forEachIndexed { index, experience ->
+            ExperienceCard(
+                experience = experience,
+                accent = Arcade.colors.accents[index % Arcade.colors.accents.size]
+            )
         }
     }
 }
@@ -214,21 +197,18 @@ private fun ExperienceSection(
 @Composable
 private fun ExperienceCard(
     experience: Experience,
+    accent: Color,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp)),
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface
+    NeonBadgeCard(
+        accent = accent,
+        modifier = modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(Arcade.spacing.lg),
+            verticalArrangement = Arrangement.spacedBy(Arcade.spacing.sm)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -238,28 +218,27 @@ private fun ExperienceCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = experience.title,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
+                        style = Arcade.type.title,
+                        color = accent
                     )
                     Text(
                         text = experience.company,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.secondary
+                        style = Arcade.type.bodySmall,
+                        color = Arcade.colors.TextMuted
                     )
                 }
 
                 if (experience.isCurrent) {
-                    Surface(
-                        modifier = Modifier.clip(RoundedCornerShape(6.dp)),
-                        color = MaterialTheme.colorScheme.secondaryContainer
+                    Box(
+                        modifier = Modifier
+                            .background(Arcade.colors.SurfaceRaised, RoundedCornerShape(Arcade.radii.chip / 2))
+                            .neonBorder(Arcade.colors.Cyan, cornerRadius = Arcade.radii.chip / 2, alpha = 0.6f)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "Current",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            fontWeight = FontWeight.SemiBold
+                            text = "▶ NOW PLAYING",
+                            style = Arcade.type.label,
+                            color = Arcade.colors.Cyan
                         )
                     }
                 }
@@ -271,42 +250,42 @@ private fun ExperienceCard(
                 } else {
                     "From ${experience.startDate}"
                 },
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = Arcade.type.label,
+                color = Arcade.colors.TextFaint
             )
 
             Text(
                 text = experience.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                style = Arcade.type.body,
+                color = Arcade.colors.Text
             )
 
             if (experience.skills.isNotEmpty()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        .padding(top = Arcade.spacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     experience.skills.take(3).forEach { skill ->
-                        Surface(
-                            modifier = Modifier.clip(RoundedCornerShape(4.dp)),
-                            color = MaterialTheme.colorScheme.primaryContainer
+                        Box(
+                            modifier = Modifier
+                                .background(Arcade.colors.SurfaceRaised, RoundedCornerShape(Arcade.radii.chip / 2))
+                                .padding(horizontal = 6.dp, vertical = 3.dp)
                         ) {
                             Text(
                                 text = skill,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
-                                fontWeight = FontWeight.Medium
+                                style = Arcade.type.label,
+                                color = Arcade.colors.TextMuted
                             )
                         }
                     }
                     if (experience.skills.size > 3) {
                         Text(
                             text = "+${experience.skills.size - 3} more",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            style = Arcade.type.label,
+                            color = Arcade.colors.TextFaint
                         )
                     }
                 }
@@ -324,39 +303,34 @@ private fun SkillsSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(horizontal = Arcade.spacing.lg)
+            .padding(bottom = Arcade.spacing.xl),
+        verticalArrangement = Arrangement.spacedBy(Arcade.spacing.md)
     ) {
-        Text(
-            text = "Skills",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
+        SectionTitle("SKILL TREE")
 
-        // Group skills by category
+        // Group skills by category, each category gets its own accent
         val skillsByCategory = skills.groupBy { it.category }
 
-        skillsByCategory.forEach { (category, categorySkills) ->
+        skillsByCategory.entries.forEachIndexed { index, (category, categorySkills) ->
+            val accent = Arcade.colors.accents[index % Arcade.colors.accents.size]
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(Arcade.spacing.sm)
             ) {
                 Text(
-                    text = category,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.SemiBold
+                    text = category.uppercase(),
+                    style = Arcade.type.label,
+                    color = accent
                 )
 
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Arcade.spacing.sm),
+                    verticalArrangement = Arrangement.spacedBy(Arcade.spacing.sm)
                 ) {
                     categorySkills.forEach { skill ->
-                        SkillChip(skill = skill)
+                        SkillChip(skill = skill, accent = accent)
                     }
                 }
             }
@@ -367,33 +341,28 @@ private fun SkillsSection(
 @Composable
 private fun SkillChip(
     skill: Skill,
+    accent: Color,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    Row(
         modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .shadow(elevation = 2.dp, shape = RoundedCornerShape(20.dp)),
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.primaryContainer
+            .background(Arcade.colors.SurfaceRaised, RoundedCornerShape(Arcade.radii.pill))
+            .neonBorder(accent, cornerRadius = Arcade.radii.pill, alpha = 0.5f)
+            .padding(horizontal = Arcade.spacing.md, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(Arcade.spacing.sm),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = skill.name,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontWeight = FontWeight.Medium
-            )
-            if (skill.proficiency >= 4) {
-                Text(
-                    text = "⭐",
-                    style = MaterialTheme.typography.labelSmall
-                )
-            }
-        }
+        Text(
+            text = skill.name,
+            style = Arcade.type.bodySmall,
+            color = Arcade.colors.Text
+        )
+        // Power meter: proficiency out of 5 as lit pips
+        StreakRow(
+            days = List(5) { it < skill.proficiency },
+            accent = accent,
+            dotSize = 5.dp
+        )
     }
 }
 
@@ -405,50 +374,49 @@ private fun ContactSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(horizontal = Arcade.spacing.lg)
+            .padding(bottom = Arcade.spacing.xl),
+        verticalArrangement = Arrangement.spacedBy(Arcade.spacing.md)
     ) {
-        Text(
-            text = "Get in Touch",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
+        SectionTitle("GET IN TOUCH")
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(Arcade.spacing.md)
         ) {
             ContactButton(
-                icon = Icons.Default.Email,
-                label = "Email",
+                emoji = "✉",
+                label = "EMAIL",
                 url = contact.email,
+                accent = Arcade.colors.Ember,
                 modifier = Modifier.weight(1f)
             )
             ContactButton(
-                icon = Icons.Default.Code,
-                label = "GitHub",
+                emoji = "⌨",
+                label = "GITHUB",
                 url = contact.github,
+                accent = Arcade.colors.Purple,
                 modifier = Modifier.weight(1f)
             )
         }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(Arcade.spacing.md)
         ) {
             ContactButton(
-                icon = Icons.Default.Language,
-                label = "LinkedIn",
+                emoji = "🌐",
+                label = "LINKEDIN",
                 url = contact.linkedIn,
+                accent = Arcade.colors.Cyan,
                 modifier = Modifier.weight(1f)
             )
             if (contact.twitter.isNotEmpty()) {
                 ContactButton(
-                    icon = Icons.Default.Language,
-                    label = "Twitter",
+                    emoji = "🐦",
+                    label = "TWITTER",
                     url = contact.twitter,
+                    accent = Arcade.colors.Pink,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -457,12 +425,13 @@ private fun ContactSection(
         if (contact.buyMeACoffee.isNotEmpty()) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(Arcade.spacing.md)
             ) {
                 ContactButton(
-                    icon = Icons.Default.Language,
-                    label = "Buy Me Coffee",
+                    emoji = "☕",
+                    label = "BUY ME COFFEE",
                     url = contact.buyMeACoffee,
+                    accent = Arcade.colors.Amber,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -472,41 +441,34 @@ private fun ContactSection(
 
 @Composable
 private fun ContactButton(
-    icon: ImageVector = Icons.Default.Email,
+    emoji: String,
     label: String,
     url: String,
+    accent: Color,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    val uriHandler = LocalUriHandler.current
+    Row(
         modifier = modifier
             .height(56.dp)
-            .shadow(
-                elevation = 2.dp,
-                shape = RoundedCornerShape(12.dp)
-            ),
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            .background(Arcade.colors.SurfaceRaised, RoundedCornerShape(Arcade.radii.chip))
+            .neonBorder(accent, cornerRadius = Arcade.radii.chip, alpha = 0.6f)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                val target = if (url.contains("@") && !url.startsWith("http")) "mailto:$url" else url
+                uriHandler.openUri(target)
+            },
+        horizontalArrangement = Arrangement.spacedBy(Arcade.spacing.sm, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                modifier = Modifier.size(20.dp)
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.padding(start = 8.dp),
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1
-            )
-        }
+        Text(text = emoji, style = Arcade.type.bodySmall, color = accent)
+        Text(
+            text = label,
+            style = Arcade.type.label,
+            color = accent,
+            maxLines = 1
+        )
     }
 }

@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -17,16 +16,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 enum class NavigationItem(
     val label: String,
     val icon: ImageVector,
     val contentDescription: String
 ) {
-    HOME("Home", Icons.Default.Home, "Home"),
-    PROJECTS("Projects", Icons.Default.Work, "Projects"),
-    GAME("Game", Icons.Default.SportsSoccer, "Game"),
-    ABOUT("About", Icons.Default.Info, "About")
+    HOME("HOME", Icons.Default.Home, "Home"),
+    PROJECTS("QUESTS", Icons.Default.Work, "Projects"),
+    GAME("ARCADE", Icons.Default.SportsSoccer, "Game"),
+    ABOUT("PLAYER", Icons.Default.Info, "About")
 }
 
 @Composable
@@ -37,9 +37,9 @@ fun PortfolioBottomNavigationBar(
 ) {
     NavigationBar(
         modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        tonalElevation = 8.dp,
+        containerColor = Arcade.colors.Surface,
+        contentColor = Arcade.colors.Text,
+        tonalElevation = 0.dp,
     ) {
         NavigationItem.entries.forEach { item ->
             NavigationBarItem(
@@ -52,14 +52,17 @@ fun PortfolioBottomNavigationBar(
                     )
                 },
                 label = {
-                    Text(text = item.label)
+                    Text(
+                        text = item.label,
+                        style = Arcade.type.arcadeCaption.copy(fontSize = 9.sp, letterSpacing = 0.5.sp)
+                    )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedIconColor = Arcade.colors.Ember,
+                    selectedTextColor = Arcade.colors.Ember,
+                    unselectedIconColor = Arcade.colors.TextFaint,
+                    unselectedTextColor = Arcade.colors.TextMuted,
+                    indicatorColor = Arcade.colors.EmberDim,
                 ),
                 interactionSource = remember { MutableInteractionSource() }
             )

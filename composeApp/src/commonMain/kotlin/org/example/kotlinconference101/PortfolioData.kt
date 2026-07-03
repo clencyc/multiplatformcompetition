@@ -1,5 +1,20 @@
 package org.example.kotlinconference101
 
+/** How a project slots into the quest log. Hackathons are BOSS fights. */
+enum class QuestType(val label: String) {
+    MAIN("MAIN QUEST"),
+    SIDE("SIDE QUEST"),
+    BOSS("BOSS FIGHT")
+}
+
+enum class QuestRank(val label: String) { S("S"), A("A"), B("B") }
+
+enum class QuestStatus(val label: String) {
+    CLEARED("CLEARED"),
+    IN_PROGRESS("IN PROGRESS"),
+    BOSS_CLEARED("BOSS CLEARED")
+}
+
 data class Project(
     val id: String,
     val title: String,
@@ -11,8 +26,41 @@ data class Project(
     val liveUrl: String = "",
     val startDate: String,
     val endDate: String? = null,
-    val featured: Boolean = false
+    val featured: Boolean = false,
+    // Quest-log fields
+    val rank: QuestRank = QuestRank.B,
+    val xp: Int = 500,
+    val status: QuestStatus = QuestStatus.IN_PROGRESS,
+    val progress: Float = 0f, // 0..1 completion shown on the segmented bar
+    val questType: QuestType = QuestType.SIDE
 )
+
+/**
+ * All quest-log UI copy lives here (not in composables) so quests and
+ * labels can be edited without touching UI code.
+ */
+object QuestLogCopy {
+    const val TITLE = "QUEST LOG"
+    const val SUBTITLE = "Explore my recent work and achievements"
+    const val LEVEL_PREFIX = "LVL"
+    const val XP_SUFFIX = "XP"
+    const val FILTER_PREFIX = "🎲"
+    const val CLEAR_FILTER = "CLEAR"
+    const val EMPTY_FILTER = "No quests match this filter yet."
+    const val BOSS_TROPHY = "🏆"
+    const val BOSS_TOAST = "YOU DID IT!"
+    const val BACK = "◀ BACK"
+    const val BRIEFING = "MISSION BRIEFING"
+    const val OBJECTIVE = "OBJECTIVE"
+    const val TACTICS = "TACTICS"
+    const val LOOT = "LOOT ACQUIRED"
+    const val GITHUB_LINK = "GITHUB"
+    const val LIVE_LINK = "LIVE DEMO"
+    const val GITHUB_EMOJI = "⌨"
+    const val LIVE_EMOJI = "🌐"
+    const val TACTIC_BULLET = "▸"
+    const val DATE_ONGOING_PREFIX = "Starting"
+}
 
 data class Experience(
     val id: String,
@@ -36,7 +84,9 @@ data class Contact(
     val linkedIn: String,
     val github: String,
     val twitter: String = "",
-    val buyMeACoffee: String = ""
+    val buyMeACoffee: String = "",
+    val githubSponsors: String = "",
+    val calCom: String = ""
 )
 
 object PortfolioDataProvider {
@@ -54,9 +104,15 @@ object PortfolioDataProvider {
                 "Accelerator accepted"
             ),
             githubUrl = "https://github.com/clencyc/gkash",
+            liveUrl = "https://gkash-gilt.vercel.app/",
             startDate = "2025-01",
             endDate = null,
-            featured = true
+            featured = true,
+            rank = QuestRank.S,
+            xp = 2500,
+            status = QuestStatus.BOSS_CLEARED,
+            progress = 0.85f,
+            questType = QuestType.BOSS
         ),
         Project(
             id = "2",
@@ -73,7 +129,12 @@ object PortfolioDataProvider {
             githubUrl = "https://github.com/clencyc/techiprokonnect",
             startDate = "2024-06",
             endDate = null,
-            featured = true
+            featured = true,
+            rank = QuestRank.A,
+            xp = 1800,
+            status = QuestStatus.IN_PROGRESS,
+            progress = 0.65f,
+            questType = QuestType.MAIN
         ),
         Project(
             id = "3",
@@ -88,22 +149,31 @@ object PortfolioDataProvider {
                 "Audit trails"
             ),
             startDate = "2025-06",
-            endDate = "2025-11"
+            endDate = "2025-11",
+            rank = QuestRank.B,
+            xp = 900,
+            status = QuestStatus.CLEARED,
+            progress = 1f,
+            questType = QuestType.SIDE
         ),
         Project(
             id = "4",
-            title = "GBV Detection Platform",
-            description = "A backend system integrating with Slack to detect and prevent workplace gender-based violence through intelligent monitoring and alerts.",
-            technologies = listOf("Python", "Django", "Slack API", "NLP", "PostgreSQL"),
+            title = "Live Edit",
+            description = "A simple web app I built for real-time collaborative editing, so people can write and edit documents together and see each other's changes as they happen.",
+            technologies = listOf("JavaScript", "Web Sockets"),
             features = listOf(
-                "Real-time content analysis",
-                "Slack integration",
-                "Automated alerts",
-                "Pattern detection",
-                "Confidential reporting"
+                "Real-time collaborative editing",
+                "Live cursor and change tracking",
+                "Simple, no-clutter interface"
             ),
-            startDate = "2025-01",
-            endDate = null
+            liveUrl = "https://livedit.space",
+            startDate = "2025-05",
+            endDate = null,
+            rank = QuestRank.B,
+            xp = 700,
+            status = QuestStatus.CLEARED,
+            progress = 1f,
+            questType = QuestType.SIDE
         ),
         Project(
             id = "5",
@@ -118,9 +188,19 @@ object PortfolioDataProvider {
                 "Automated reporting"
             ),
             startDate = "2024-06",
-            endDate = null
+            endDate = null,
+            rank = QuestRank.A,
+            xp = 1200,
+            status = QuestStatus.IN_PROGRESS,
+            progress = 0.5f,
+            questType = QuestType.MAIN
         )
     )
+
+    /** XP from quests that are no longer in progress — fills the header bar. */
+    val earnedQuestXp: Int get() = projects.filter { it.status != QuestStatus.IN_PROGRESS }.sumOf { it.xp }
+    val totalQuestXp: Int get() = projects.sumOf { it.xp }
+    val playerLevel: Int get() = earnedQuestXp / 1000 + 1
 
     val experiences = listOf(
         Experience(
@@ -222,21 +302,22 @@ object PortfolioDataProvider {
         linkedIn = "https://www.linkedin.com/in/clency-christine-643b32265",
         github = "https://github.com/clencyc",
         twitter = "",
-        buyMeACoffee = "https://buymeacoffee.com/clencyc"
+        buyMeACoffee = "https://buymeacoffee.com/clencyc",
+        githubSponsors = "https://github.com/sponsors/clencyc",
+        calCom = "https://cal.com/christine-oyiera-ngz2gj"
     )
 
     val bio = """
-        Lifelong Builder | Backend Developer with expertise in Python, Django REST Framework, FastAPI, and REST APIs. 
-        Android Developer skilled in Kotlin and Jetpack Compose. Currently exploring AI integration into applications.
-        
-        Based in Nairobi County, Kenya, I'm obsessed with understanding intelligence—how it emerges, how it learns, 
-        and how we can build systems that push the boundaries of what's possible. With a foundation in software engineering 
-        and mathematics, I've taught myself machine learning through relentless self-study and hands-on projects.
-        
-        I'm extremely comfortable with advanced mathematics—linear algebra, probability, statistics, and calculus—and 
-        proficient in Python. As part of an all-women team, I co-built GKash, earning 2nd place in the 2025 Absa GirlCodeHack 
-        and acceptance into a competitive accelerator. I've developed backend systems for social impact platforms and built 
-        real-time fraud detection models.
+        Hey, I'm Clency! I love building and experimenting with stuff. I'm not an expert by any means, but
+        I enjoy learning by doing — I pick a project, dive in, and figure things out along the way.
+
+        Based in Nairobi County, Kenya, I mostly tinker with Python and Django on the backend, and Kotlin with
+        Jetpack Compose for Android. I'm also curious about how AI works and I'm slowly teaching myself machine
+        learning through small projects and a lot of trial and error.
+
+        As part of an all-women team, I co-built GKash, which won 2nd place at the 2025 Absa GirlCodeHack and
+        got accepted into an accelerator — still can't quite believe that happened! I like turning ideas into
+        working apps, even the messy, imperfect ones, because that's how I learn best.
     """.trimIndent()
 
     val funFact = "2nd Place Winner at 2025 Absa GirlCodeHack Pan-African Women-in-Tech Competition with GKash AI App!"

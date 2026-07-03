@@ -7,16 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,7 +21,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.example.kotlinconference101.rememberTextToSpeechService
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -50,21 +41,28 @@ import org.example.kotlinconference101.rememberSpeechToTextService
 
 @Composable
 private fun VoicePromptBanner(text: String) {
-    androidx.compose.material3.Surface(
-        tonalElevation = 6.dp,
-        shadowElevation = 12.dp,
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.primaryContainer,
+    NeonBadgeCard(
+        accent = Arcade.colors.Cyan,
+        cornerRadius = Arcade.radii.badge,
         modifier = Modifier
-            .padding(16.dp)
+            .padding(Arcade.spacing.lg)
             .fillMaxWidth()
     ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(16.dp),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
-        )
+        Column(
+            modifier = Modifier.padding(Arcade.spacing.lg),
+            verticalArrangement = Arrangement.spacedBy(Arcade.spacing.xs)
+        ) {
+            Text(
+                text = "VOICE LINK ONLINE",
+                style = Arcade.type.arcadeCaption,
+                color = Arcade.colors.Cyan
+            )
+            Text(
+                text = text,
+                style = Arcade.type.body,
+                color = Arcade.colors.Text
+            )
+        }
     }
 }
 
@@ -72,7 +70,7 @@ private fun VoicePromptBanner(text: String) {
 private fun VoiceRipple(
     isActive: Boolean,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.primary
+    color: Color = Arcade.colors.Ember
 ) {
     if (!isActive) return
 
@@ -131,7 +129,7 @@ private fun VoiceRipple(
 @Composable
 @Preview
 fun App() {
-    AppTheme {
+    ArcadeTheme {
         PortfolioApp()
     }
 }
@@ -139,6 +137,7 @@ fun App() {
 @Composable
 private fun PortfolioApp() {
     var currentScreen by remember { mutableStateOf(NavigationItem.HOME) }
+    var projectFilter by remember { mutableStateOf(FilterType.ALL) }
     var voicePrompt by remember { mutableStateOf<String?>(null) }
     var isSpeaking by remember { mutableStateOf(false) }
     var statusText by remember { mutableStateOf<String?>(null) }
@@ -186,9 +185,6 @@ private fun PortfolioApp() {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = {
-            PortfolioTopAppBar(currentScreen = currentScreen)
-        },
         bottomBar = {
             PortfolioBottomNavigationBar(
                 currentItem = currentScreen,
@@ -196,7 +192,10 @@ private fun PortfolioApp() {
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            EmojiIconButton(
+                emoji = "🎙",
+                accent = Arcade.colors.Ember,
+                size = 64.dp,
                 onClick = {
                     val prompt = "Hello this is Christine's voice assistant, how can I help you?"
                     voicePrompt = prompt
@@ -207,15 +206,8 @@ private fun PortfolioApp() {
                     } else {
                         statusText = "Text-to-speech not available on this platform"
                     }
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Mic,
-                    contentDescription = "Voice Assistant"
-                )
-            }
+                }
+            )
         }
     ) { innerPadding ->
         // Screen content with padding from Scaffold
@@ -223,6 +215,12 @@ private fun PortfolioApp() {
             currentScreen = currentScreen,
             onNavigateToProjects = { currentScreen = NavigationItem.PROJECTS },
             onNavigateToAbout = { currentScreen = NavigationItem.ABOUT },
+            projectFilter = projectFilter,
+            onFilterSelected = { filter ->
+                projectFilter = filter
+                currentScreen = NavigationItem.PROJECTS
+            },
+            onClearFilter = { projectFilter = FilterType.ALL },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -242,31 +240,14 @@ private fun PortfolioApp() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PortfolioTopAppBar(currentScreen: NavigationItem, modifier: Modifier = Modifier) {
-    CenterAlignedTopAppBar(
-        title = {
-            Text(
-                text = currentScreen.label,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface
-        ),
-        modifier = modifier
-    )
-}
-
 @Composable
 private fun ScreenContent(
     currentScreen: NavigationItem,
     onNavigateToProjects: () -> Unit,
     onNavigateToAbout: () -> Unit,
+    projectFilter: FilterType,
+    onFilterSelected: (FilterType) -> Unit,
+    onClearFilter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (currentScreen) {
@@ -276,9 +257,12 @@ private fun ScreenContent(
             modifier = modifier
         )
         NavigationItem.PROJECTS -> ProjectsScreen(
+            filter = projectFilter,
+            onClearFilter = onClearFilter,
             modifier = modifier
         )
         NavigationItem.GAME -> GameScreen(
+            onFilterSelected = onFilterSelected,
             modifier = modifier
         )
         NavigationItem.ABOUT -> AboutScreen(
